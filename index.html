@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="appTitle">Image to PNG Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        html[lang="ar"] body { font-family: 'Cairo', sans-serif; }
+        .file-input-button { cursor: pointer; display: inline-block; }
+        #fileInput { display: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .lang-btn.active { background-color: #4f46e5; color: white; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container mx-auto max-w-lg w-full">
+        <div class="flex justify-center gap-2 mb-4">
+            <button id="lang-ar" class="lang-btn px-4 py-1.5 text-sm rounded-md bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">العربية</button>
+            <button id="lang-en" class="lang-btn px-4 py-1.5 text-sm rounded-md bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">English</button>
+            <button id="lang-fr" class="lang-btn px-4 py-1.5 text-sm rounded-md bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Français</button>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 text-center">
+            
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400" data-lang-key="title">Image to PNG Converter</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2" data-lang-key="subtitle">Upload any image, resize it, and easily convert it to PNG format.</p>
+            </div>
+
+            <div id="uploadArea" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 transition-all duration-300 hover:border-indigo-500 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <label for="fileInput" class="file-input-button mt-4 bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-300" data-lang-key="selectImage">Select Image</label>
+                <input type="file" id="fileInput" accept="image/jpeg, image/webp, image/gif, image/bmp">
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" data-lang-key="supportedFormats">Supports JPG, WEBP, GIF, BMP</p>
+            </div>
+
+            <div id="resultArea" class="hidden mt-6">
+                <h2 class="text-xl font-bold mb-4" data-lang-key="result">Result</h2>
+                <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg inline-block" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=%2720%27 height=%2720%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3crect width=%2710%27 height=%2710%27 fill=%27%23fff%27/%3e%3crect x=%2710%27 y=%2710%27 width=%2710%27 height=%2710%27 fill=%27%23fff%27/%3e%3crect x=%2710%27 width=%2710%27 height=%2710%27 fill=%27%23e0e0e0%27/%3e%3crect y=%2710%27 width=%2710%27 height=%2710%27 fill=%27%23e0e0e0%27/%3e%3c/svg%3e');">
+                   <img id="previewImage" class="max-w-full h-auto rounded-md shadow-md mx-auto" style="max-height: 300px;" alt="Converted image preview">
+                </div>
+
+                <div id="resizeArea" class="mt-6 p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300" data-lang-key="resizeTitle">Resize (pixels)</h3>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <label for="widthInput" class="font-medium text-sm" data-lang-key="width">Width:</label>
+                            <input type="number" id="widthInput" min="1" class="w-24 p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-center">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="heightInput" class="font-medium text-sm" data-lang-key="height">Height:</label>
+                            <input type="number" id="heightInput" min="1" class="w-24 p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-center">
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center justify-center gap-2">
+                        <input type="checkbox" id="aspectRatioCheck" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer" checked>
+                        <label for="aspectRatioCheck" class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer" data-lang-key="aspectRatio">Maintain aspect ratio</label>
+                    </div>
+                </div>
+
+                <div id="blurArea" class="hidden mt-4 p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300" data-lang-key="blurTitle">Background Blur (for extended sides)</h3>
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <input type="checkbox" id="blurCheck" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer">
+                        <label for="blurCheck" class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer" data-lang-key="enableBlur">Enable Blur</label>
+                    </div>
+                    <div id="blurSliderContainer" class="hidden flex items-center justify-center gap-3">
+                        <label for="blurSlider" class="text-sm" data-lang-key="blurAmount">Amount:</label>
+                        <input type="range" id="blurSlider" min="0" max="30" value="15" step="1" class="w-1/2">
+                        <span id="blurValue" class="text-sm font-mono bg-gray-200 dark:bg-gray-600 px-2 py-0.5 rounded-md">15px</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                    <a id="downloadButton" href="#" download="converted-image.png" class="w-full sm:w-auto bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-600 transition-colors duration-300 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span data-lang-key="download">Download as PNG</span>
+                    </a>
+                     <button id="resetButton" class="w-full sm:w-auto bg-red-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <span data-lang-key="startOver">Start Over</span>
+                    </button>
+                </div>
+            </div>
+
+            <canvas id="canvas" style="display: none;"></canvas>
+            
+            <div id="errorArea" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                <strong class="font-bold" data-lang-key="error">Error!</strong>
+                <span id="errorMessage" class="block sm:inline"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            ar: { appTitle: "محول الصور إلى PNG", title: "محول الصور إلى PNG", subtitle: "ارفع أي صورة، غير حجمها، وحولها بسهولة إلى تنسيق PNG.", selectImage: "اختر صورة", supportedFormats: "يدعم JPG, WEBP, GIF, BMP", result: "النتيجة", resizeTitle: "تغيير الحجم (بكسل)", width: "العرض:", height: "الارتفاع:", aspectRatio: "الحفاظ على نسبة العرض إلى الارتفاع", download: "تنزيل بصيغة PNG", startOver: "البدء من جديد", error: "خطأ!", errorReadFile: "حدث خطأ أثناء قراءة الملف.", errorInvalidFile: "الرجاء تحديد ملف صورة صالح.", blurTitle: "ضبابية الخلفية (للأبعاد الممتدة)", enableBlur: "تفعيل الضبابية", blurAmount: "الكمية:", },
+            en: { appTitle: "Image to PNG Converter", title: "Image to PNG Converter", subtitle: "Upload any image, resize it, and easily convert it to PNG format.", selectImage: "Select Image", supportedFormats: "Supports JPG, WEBP, GIF, BMP", result: "Result", resizeTitle: "Resize (pixels)", width: "Width:", height: "Height:", aspectRatio: "Maintain aspect ratio", download: "Download as PNG", startOver: "Start Over", error: "Error!", errorReadFile: "An error occurred while reading the file.", errorInvalidFile: "Please select a valid image file.", blurTitle: "Background Blur (for extended sides)", enableBlur: "Enable Blur", blurAmount: "Amount:", },
+            fr: { appTitle: "Convertisseur d'Image en PNG", title: "Convertisseur d'Image en PNG", subtitle: "Téléchargez n'importe quelle image, redimensionnez-la et convertissez-la facilement au format PNG.", selectImage: "Sélectionner une image", supportedFormats: "Prend en charge JPG, WEBP, GIF, BMP", result: "Résultat", resizeTitle: "Redimensionner (pixels)", width: "Largeur:", height: "Hauteur:", aspectRatio: "Conserver les proportions", download: "Télécharger en PNG", startOver: "Recommencer", error: "Erreur!", errorReadFile: "Une erreur est survenue lors de la lecture du fichier.", errorInvalidFile: "Veuillez sélectionner un fichier image valide.", blurTitle: "Flou d'arrière-plan (pour les côtés étendus)", enableBlur: "Activer le flou", amount: "Quantité:", }
+        };
+        let currentLang = 'en';
+        const fileInput = document.getElementById('fileInput'), canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d'), previewImage = document.getElementById('previewImage'), downloadButton = document.getElementById('downloadButton'), resetButton = document.getElementById('resetButton'), uploadArea = document.getElementById('uploadArea'), resultArea = document.getElementById('resultArea'), errorArea = document.getElementById('errorArea'), errorMessage = document.getElementById('errorMessage'), widthInput = document.getElementById('widthInput'), heightInput = document.getElementById('heightInput'), aspectRatioCheck = document.getElementById('aspectRatioCheck'), blurArea = document.getElementById('blurArea'), blurCheck = document.getElementById('blurCheck'), blurSliderContainer = document.getElementById('blurSliderContainer'), blurSlider = document.getElementById('blurSlider'), blurValue = document.getElementById('blurValue');
+        let originalImage = null, originalAspectRatio = 1;
+        const langButtons = document.querySelectorAll('.lang-btn');
+        langButtons.forEach(btn => { btn.addEventListener('click', () => { const lang = btn.id.split('-')[1]; setLanguage(lang); }); });
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-lang-key]').forEach(el => { const key = el.getAttribute('data-lang-key'); if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; });
+            document.getElementById('appTitle').textContent = translations[lang].appTitle;
+            const html = document.documentElement;
+            html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            langButtons.forEach(btn => { btn.classList.remove('active'); if (btn.id === `lang-${lang}`) btn.classList.add('active'); });
+        }
+        fileInput.addEventListener('change', handleFileSelect);
+        resetButton.addEventListener('click', resetApp);
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('border-indigo-500', 'bg-gray-50', 'dark:bg-gray-700'); });
+        uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('border-indigo-500', 'bg-gray-50', 'dark:bg-gray-700'); });
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('border-indigo-500', 'bg-gray-50', 'dark:bg-gray-700'); if (e.dataTransfer.files.length > 0) { fileInput.files = e.dataTransfer.files; handleFileSelect({ target: fileInput }); } });
+        blurCheck.addEventListener('change', () => { blurSliderContainer.classList.toggle('hidden', !blurCheck.checked); updateCanvas(); });
+        blurSlider.addEventListener('input', () => { blurValue.textContent = `${blurSlider.value}px`; updateCanvas(); });
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            hideError();
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalImage = img;
+                        originalAspectRatio = img.width / img.height;
+                        widthInput.value = img.width;
+                        heightInput.value = img.height;
+                        uploadArea.classList.add('hidden');
+                        resultArea.classList.remove('hidden');
+                        widthInput.addEventListener('input', handleWidthChange);
+                        heightInput.addEventListener('input', handleHeightChange);
+                        aspectRatioCheck.addEventListener('change', handleAspectRatioToggle);
+                        const originalFileName = file.name.substring(0, file.name.lastIndexOf('.'));
+                        downloadButton.download = `${originalFileName}.png`;
+                        updateCanvas();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => showError(translations[currentLang].errorReadFile);
+                reader.readAsDataURL(file);
+            } else if (file) { showError(translations[currentLang].errorInvalidFile); }
+        }
+        function handleWidthChange() {
+            if (aspectRatioCheck.checked) {
+                const newWidth = parseInt(widthInput.value, 10);
+                if (!isNaN(newWidth) && newWidth > 0) { heightInput.value = Math.round(newWidth / originalAspectRatio); }
+                else if (widthInput.value === '') { heightInput.value = ''; }
+            }
+            updateCanvas();
+        }
+        function handleHeightChange() {
+            if (aspectRatioCheck.checked) {
+                const newHeight = parseInt(heightInput.value, 10);
+                if (!isNaN(newHeight) && newHeight > 0) { widthInput.value = Math.round(newHeight * originalAspectRatio); }
+                else if (heightInput.value === '') { widthInput.value = ''; }
+            }
+            updateCanvas();
+        }
+        function handleAspectRatioToggle() { if (aspectRatioCheck.checked) handleWidthChange(); }
+        function updateCanvas() {
+            if (!originalImage) return;
+            toggleBlurOptionVisibility();
+            const newWidth = parseInt(widthInput.value, 10);
+            const newHeight = parseInt(heightInput.value, 10);
+            if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) return;
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            const imgAspectRatio = originalImage.width / originalImage.height;
+            const canvasAspectRatio = newWidth / newHeight;
+            let drawWidth, drawHeight, drawX, drawY;
+            if (blurCheck.checked && imgAspectRatio !== canvasAspectRatio) {
+                ctx.save();
+                ctx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+                ctx.filter = `blur(${blurSlider.value}px)`;
+                ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+                ctx.restore();
+            } else {
+                ctx.clearRect(0, 0, newWidth, newHeight);
+            }
+            if (imgAspectRatio > canvasAspectRatio) {
+                drawWidth = newWidth;
+                drawHeight = newWidth / imgAspectRatio;
+            } else {
+                drawHeight = newHeight;
+                drawWidth = newHeight * imgAspectRatio;
+            }
+            drawX = (newWidth - drawWidth) / 2;
+            drawY = (newHeight - drawHeight) / 2;
+            ctx.drawImage(originalImage, drawX, drawY, drawWidth, drawHeight);
+            const dataUrl = canvas.toDataURL('image/png');
+            previewImage.src = dataUrl;
+            downloadButton.href = dataUrl;
+        }
+        function toggleBlurOptionVisibility() {
+            const newWidth = parseInt(widthInput.value, 10);
+            const newHeight = parseInt(heightInput.value, 10);
+            if (isNaN(newWidth) || isNaN(newHeight) || !originalImage) return;
+            const canvasAspectRatio = newWidth / newHeight;
+            const imgAspectRatio = originalImage.width / originalImage.height;
+            if (Math.abs(canvasAspectRatio - imgAspectRatio) > 0.001) {
+                blurArea.classList.remove('hidden');
+            } else {
+                blurArea.classList.add('hidden');
+                blurCheck.checked = false;
+                blurSliderContainer.classList.add('hidden');
+            }
+        }
+        function resetApp() {
+            fileInput.value = '';
+            originalImage = null;
+            uploadArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            hideError();
+            widthInput.removeEventListener('input', handleWidthChange);
+            heightInput.removeEventListener('input', handleHeightChange);
+            aspectRatioCheck.removeEventListener('change', handleAspectRatioToggle);
+            aspectRatioCheck.checked = true;
+            blurCheck.checked = false;
+            blurSliderContainer.classList.add('hidden');
+        }
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorArea.classList.remove('hidden');
+        }
+        function hideError() {
+            errorArea.classList.add('hidden');
+        }
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage('en');
+        });
+    </script>
+</body>
+</html>
